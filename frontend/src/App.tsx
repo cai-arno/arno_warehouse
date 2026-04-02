@@ -1,0 +1,22 @@
+import { Routes, Route, Navigate } from "react-router-dom"
+import { Layout } from "./components/Layout"
+import { HomePage } from "./pages/HomePage"
+import { ScriptsPage } from "./pages/ScriptsPage"
+import { VideosPage } from "./pages/VideosPage"
+import { MaterialsPage } from "./pages/MaterialsPage"
+import { PublishingPage } from "./pages/PublishingPage"
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route index element={<HomePage />} />
+        <Route path="scripts" element={<ScriptsPage />} />
+        <Route path="videos" element={<VideosPage />} />
+        <Route path="materials" element={<MaterialsPage />} />
+        <Route path="publishing" element={<PublishingPage />} />
+      </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  )
+}

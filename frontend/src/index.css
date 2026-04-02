@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #6C5CE7;
+  --color-bg: #F8F9FA;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  :root {
+    font-size: 14px;
+  }
+}

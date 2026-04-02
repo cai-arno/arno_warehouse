@@ -1,0 +1,64 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-04-02",
+  "description": "脚本结构模板库",
+  "structures": [
+    {
+      "id": "struct_001",
+      "name": "痛点-方案-效果（种草型）",
+      "duration": "30秒",
+      "segments": [
+        {"time": "0-3s", "type": "hook", "content": "痛点开场，使用hook模板"},
+        {"time": "3-8s", "type": "problem", "content": "强化痛点，引发共鸣"},
+        {"time": "8-20s", "type": "solution", "content": "产品介绍+卖点展示"},
+        {"time": "20-27s", "type": "proof", "content": "效果展示/用户证言"},
+        {"time": "27-30s", "type": "cta", "content": "引导互动/购买链接"}
+      ],
+      "emotion_curve": ["焦虑", "共鸣", "期待", "信任", "紧迫"],
+      "platform": ["抖音", "快手", "视频号"]
+    },
+    {
+      "id": "struct_002",
+      "name": "剧情反转型",
+      "duration": "45秒",
+      "segments": [
+        {"time": "0-5s", "type": "setup", "content": "设置场景/人物"},
+        {"time": "5-15s", "type": "conflict", "content": "制造冲突或反差"},
+        {"time": "15-30s", "type": "twist", "content": "剧情反转"},
+        {"time": "30-40s", "type": "resolution", "content": "合理结尾+植入"},
+        {"time": "40-45s", "type": "cta", "content": "引导互动"}
+      ],
+      "emotion_curve": ["好奇", "紧张", "惊讶", "好笑", "期待"],
+      "platform": ["抖音", "B站"]
+    },
+    {
+      "id": "struct_003",
+      "name": "知识科普型",
+      "duration": "60秒",
+      "segments": [
+        {"time": "0-5s", "type": "hook", "content": "抛出问题或误区"},
+        {"time": "5-20s", "type": "introduction", "content": "介绍核心知识点"},
+        {"time": "20-45s", "type": "detail", "content": "分点讲解，每个知识点10秒左右"},
+        {"time": "45-55s", "type": "summary", "content": "总结要点"},
+        {"time": "55-60s", "type": "cta", "content": "引导关注/收藏"}
+      ],
+      "emotion_curve": ["好奇", "专注", "认可", "满足", "期待"],
+      "platform": ["B站", "抖音", "视频号"]
+    },
+    {
+      "id": "struct_004",
+      "name": "对比测评型",
+      "duration": "90秒",
+      "segments": [
+        {"time": "0-5s", "type": "hook", "content": "直接抛出对比话题"},
+        {"time": "5-30s", "type": "item_a", "content": "测评对象A的特点"},
+        {"time": "30-55s", "type": "item_b", "content": "测评对象B的特点"},
+        {"time": "55-75s", "type": "comparison", "content": "多维度对比"},
+        {"time": "75-85s", "type": "recommendation", "content": "给出推荐"},
+        {"time": "85-90s", "type": "cta", "content": "引导评论"}
+      ],
+      "emotion_curve": ["期待", "好奇", "期待", "满足", "互动"],
+      "platform": ["B站", "抖音"]
+    }
+  ]
+}
