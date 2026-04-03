@@ -31,7 +31,7 @@ async def get_current_user(
     if not user_id:
         raise HTTPException(status_code=401, detail="Token 缺少用户信息")
 
-    user = await session.get(User, int(user_id))
+    user = await session.get(User, user_id)
     if not user:
         raise HTTPException(status_code=401, detail="用户不存在")
 
