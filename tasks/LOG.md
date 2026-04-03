@@ -167,3 +167,35 @@ async def init_counters() -> None:
 ### Git
 - Commit: `ab74784`
 - 已推送到 `main` 分支
+
+---
+
+## 2026-04-03 修复测试失败项
+
+### 问题清单
+
+| # | 问题 | 原因 | 修复 |
+|---|------|------|------|
+| 1 | 9.1/9.2/9.5 账号登录失败 | `testPermissionIsolation` 未调用 `send-code`，`_sms_store` 为空导致 login 401 | 在登录前调用 `/auth/send-code` |
+| 2 | 11.1 从脚本创建视频失败 | `testScripts` 返回前删除了脚本，`testVideos` 拿到已删除的 scriptId | 移除 `testScripts` 中的删除逻辑 |
+| 3 | 8.6 /analytics 404 | 路由 `/analytics` 未注册，只有 `/analytics/overview` 等子路由 | 添加 `@router.get("")` 入口路由 |
+| 4 | 11.2 发布创建失败（附带发现） | `Video/Publish/Material/Template` schema 的 ID 字段定义为 `int`，实际为 `str` | 统一改为 `str` 类型 |
+
+### 修改文件
+
+- `backend/app/api/analytics.py` - 新增 `GET /` 入口路由
+- `backend/app/schemas/video.py` - `script_id`, `video_id`, `id` 从 `int` 改为 `str`
+- `backend/app/schemas/publishing.py` - `video_id`, `id` 从 `int` 改为 `str`
+- `backend/app/schemas/material.py` - `id` 从 `int` 改为 `str`
+- `backend/app/schemas/template.py` - `id` 从 `int` 改为 `str`
+- `test-100.js` - 添加 send-code 调用，移除脚本删除
+
+### 测试结果
+- ✅ **100 轮测试通过率 100%**（484800/484800）
+- ✅ 权限隔离测试（9.1/9.2/9.5）全部通过
+- ✅ 视频创建（11.1）及ID格式（10.3）通过
+- ✅ analytics 导航（8.6）通过
+- ✅ 发布创建（11.2）通过
+
+### Git
+- Commit: `d2bdbfc`
