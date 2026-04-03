@@ -1,7 +1,8 @@
 """模板管理 API"""
-from typing import Optional, List
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import select
 
 from app.core.database import get_session
 from app.models.template import Template, TemplateType
@@ -17,14 +18,14 @@ async def list_templates(
     session: AsyncSession = Depends(get_session),
 ):
     """获取模板列表"""
-    query = session.query(Template).where(Template.is_active == True)
+    query = select(Template).where(Template.is_active == True)
     if template_type:
         query = query.where(Template.template_type == template_type)
     if script_type:
         query = query.where(Template.script_type == script_type)
 
-    templates = await session.execute(query.order_by(Template.created_at.desc()))
-    items = templates.scalars().all()
+    result = await session.execute(query.order_by(Template.created_at.desc()))
+    items = result.scalars().all()
 
     return TemplateListResponse(
         items=[TemplateResponse.model_validate(t) for t in items],

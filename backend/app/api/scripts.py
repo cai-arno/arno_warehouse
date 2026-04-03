@@ -2,6 +2,8 @@
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import func
+from sqlmodel import select
 
 from app.core.database import get_session
 from app.models.script import Script, ScriptStatus, ScriptType
@@ -22,7 +24,6 @@ async def generate_script(
 ):
     """AI 生成脚本"""
     generator = ScriptGenerator(session)
-
     try:
         script = await generator.generate(
             topic=req.topic,
@@ -44,17 +45,24 @@ async def list_scripts(
     session: AsyncSession = Depends(get_session),
 ):
     """获取脚本列表"""
-    query = session.query(Script)
+    # 构造查询
+    query = select(Script)
+    count_query = select(func.count(Script.id))
+
     if status:
         query = query.where(Script.status == status)
+        count_query = count_query.where(Script.status == status)
     if script_type:
         query = query.where(Script.script_type == script_type)
+        count_query = count_query.where(Script.script_type == script_type)
 
-    total = await session.scalar(query.count())
-    scripts = await session.execute(
-        query.offset((page - 1) * page_size).limit(page_size).order_by(Script.created_at.desc())
-    )
-    items = scripts.scalars().all()
+    # 总数
+    total = await session.scalar(count_query) or 0
+
+    # 分页结果
+    query = query.offset((page - 1) * page_size).limit(page_size).order_by(Script.created_at.desc())
+    result = await session.execute(query)
+    items = result.scalars().all()
 
     return ScriptListResponse(
         items=[ScriptResponse.model_validate(s) for s in items],

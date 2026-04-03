@@ -1,8 +1,9 @@
 """发布管理 API"""
-from typing import Optional, List
-from datetime import datetime
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Query
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import func
+from sqlmodel import select
 
 from app.core.database import get_session
 from app.models.publishing import PublishRecord, Platform, PublishStatus
@@ -50,17 +51,21 @@ async def list_publish_records(
     session: AsyncSession = Depends(get_session),
 ):
     """获取发布记录列表"""
-    query = session.query(PublishRecord)
+    query = select(PublishRecord)
+    count_query = select(func.count(PublishRecord.id))
+
     if platform:
         query = query.where(PublishRecord.platform == platform)
+        count_query = count_query.where(PublishRecord.platform == platform)
     if status:
         query = query.where(PublishRecord.status == status)
+        count_query = count_query.where(PublishRecord.status == status)
 
-    total = await session.scalar(query.count())
-    records = await session.execute(
-        query.offset((page - 1) * page_size).limit(page_size).order_by(PublishRecord.created_at.desc())
-    )
-    items = records.scalars().all()
+    total = await session.scalar(count_query) or 0
+
+    query = query.offset((page - 1) * page_size).limit(page_size).order_by(PublishRecord.created_at.desc())
+    result = await session.execute(query)
+    items = result.scalars().all()
 
     return PublishListResponse(
         items=[PublishResponse.model_validate(r) for r in items],

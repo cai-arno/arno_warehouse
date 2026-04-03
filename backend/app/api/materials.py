@@ -1,7 +1,9 @@
 """素材管理 API"""
-from typing import Optional, List
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Query
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import func
+from sqlmodel import select
 
 from app.core.database import get_session
 from app.core.config import settings
@@ -53,19 +55,24 @@ async def list_materials(
     session: AsyncSession = Depends(get_session),
 ):
     """获取素材列表"""
-    query = session.query(Material)
+    query = select(Material)
+    count_query = select(func.count(Material.id))
+
     if material_type:
         query = query.where(Material.material_type == material_type)
+        count_query = count_query.where(Material.material_type == material_type)
     if category:
         query = query.where(Material.category == category)
+        count_query = count_query.where(Material.category == category)
     if keyword:
         query = query.where(Material.name.ilike(f"%{keyword}%"))
+        count_query = count_query.where(Material.name.ilike(f"%{keyword}%"))
 
-    total = await session.scalar(query.count())
-    materials = await session.execute(
-        query.offset((page - 1) * page_size).limit(page_size).order_by(Material.created_at.desc())
-    )
-    items = materials.scalars().all()
+    total = await session.scalar(count_query) or 0
+
+    query = query.offset((page - 1) * page_size).limit(page_size).order_by(Material.created_at.desc())
+    result = await session.execute(query)
+    items = result.scalars().all()
 
     return MaterialListResponse(
         items=[MaterialResponse.model_validate(m) for m in items],

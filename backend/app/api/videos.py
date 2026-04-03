@@ -2,6 +2,8 @@
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Query
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import func
+from sqlmodel import select
 
 from app.core.database import get_session
 from app.models.video import Video, VideoStatus
@@ -23,7 +25,6 @@ async def create_video(
     session: AsyncSession = Depends(get_session),
 ):
     """创建视频剪辑任务"""
-    # 获取脚本标题作为视频标题
     title = f"视频_{req.script_id}"
     script = await session.get(Script, req.script_id)
     if script:
@@ -67,15 +68,18 @@ async def list_videos(
     session: AsyncSession = Depends(get_session),
 ):
     """获取视频列表"""
-    query = session.query(Video)
+    query = select(Video)
+    count_query = select(func.count(Video.id))
+
     if status:
         query = query.where(Video.status == status)
+        count_query = count_query.where(Video.status == status)
 
-    total = await session.scalar(query.count())
-    videos = await session.execute(
-        query.offset((page - 1) * page_size).limit(page_size).order_by(Video.created_at.desc())
-    )
-    items = videos.scalars().all()
+    total = await session.scalar(count_query) or 0
+
+    query = query.offset((page - 1) * page_size).limit(page_size).order_by(Video.created_at.desc())
+    result = await session.execute(query)
+    items = result.scalars().all()
 
     return VideoListResponse(
         items=[VideoResponse.model_validate(v) for v in items],
