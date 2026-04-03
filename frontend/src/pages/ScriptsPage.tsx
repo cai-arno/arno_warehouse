@@ -1,6 +1,6 @@
 import { useState } from "react"
-import { Card, List, Tag, Button, Modal, Form, Input, Select, message, Spin } from "antd"
-import { PlusOutlined, DeleteOutlined } from "@ant-design/icons"
+import { Card, List, Tag, Button, Modal, Form, Input, Select, message, Spin, Descriptions, Space } from "antd"
+import { PlusOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { scriptsApi } from "../services/api"
 
@@ -23,6 +23,8 @@ const statusMap: Record<string, { color: string; text: string }> = {
 
 export function ScriptsPage() {
   const [modalOpen, setModalOpen] = useState(false)
+  const [detailModalOpen, setDetailModalOpen] = useState(false)
+  const [selectedScript, setSelectedScript] = useState<any>(null)
   const [form] = Form.useForm()
   const queryClient = useQueryClient()
   const [page] = useState(1)
@@ -93,7 +95,18 @@ export function ScriptsPage() {
                 title={
                   <div className="flex justify-between items-center">
                     <span className="text-sm">{script.title}</span>
-                    <Tag color={statusMap[script.status]?.color}>{statusMap[script.status]?.text}</Tag>
+                    <Space>
+                      <Tag color={statusMap[script.status]?.color}>{statusMap[script.status]?.text}</Tag>
+                      <Button
+                        type="text"
+                        size="small"
+                        icon={<EyeOutlined />}
+                        onClick={() => {
+                          setSelectedScript(script)
+                          setDetailModalOpen(true)
+                        }}
+                      />
+                    </Space>
                   </div>
                 }
                 description={
@@ -107,6 +120,33 @@ export function ScriptsPage() {
           )}
         />
       )}
+
+      {/* 脚本详情弹窗 */}
+      <Modal
+        title="脚本详情"
+        open={detailModalOpen}
+        onCancel={() => setDetailModalOpen(false)}
+        footer={null}
+        width={600}
+      >
+        {selectedScript && (
+          <Descriptions column={1} bordered size="small">
+            <Descriptions.Item label="标题">{selectedScript.title}</Descriptions.Item>
+            <Descriptions.Item label="类型">{selectedScript.script_type}</Descriptions.Item>
+            <Descriptions.Item label="时长">{selectedScript.duration}秒</Descriptions.Item>
+            <Descriptions.Item label="状态">{statusMap[selectedScript.status]?.text}</Descriptions.Item>
+            <Descriptions.Item label="开场（Hook）">
+              <div className="whitespace-pre-wrap">{selectedScript.hook}</div>
+            </Descriptions.Item>
+            <Descriptions.Item label="正文（Body）">
+              <div className="whitespace-pre-wrap">{selectedScript.body}</div>
+            </Descriptions.Item>
+            <Descriptions.Item label="行动号召（CTA）">
+              <div className="whitespace-pre-wrap">{selectedScript.cta}</div>
+            </Descriptions.Item>
+          </Descriptions>
+        )}
+      </Modal>
 
       {/* 生成脚本弹窗 */}
       <Modal
