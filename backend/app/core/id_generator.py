@@ -7,14 +7,14 @@ import threading
 import uuid
 from typing import Callable
 
-# 表前缀映射（4字母，无横杠）
+# 表前缀映射（固定4位，不足用0补）
 PREFIX_MAP = {
-    "users": "USR",
-    "scripts": "SCR",
-    "videos": "VID",
-    "materials": "MAT",
-    "templates": "TPL",
-    "publish_records": "PUB",
+    "users": "USR0",
+    "scripts": "SCR0",
+    "videos": "VID0",
+    "materials": "MAT0",
+    "templates": "TPL0",
+    "publish_records": "PUB0",
 }
 
 # 每个表的顺序计数器（线程安全）
@@ -32,7 +32,7 @@ def get_next_id(table_name: str) -> str:
         current = _counters.get(table_name, 0)
         current += 1
         _counters[table_name] = current
-        return f"{prefix}{current:08X}"  # 如 USR00000001
+        return f"{prefix}{current:08X}"  # 如 USR0000000000000001
 
 
 def generate_id(table_name: str, sequential: bool = True) -> str:
