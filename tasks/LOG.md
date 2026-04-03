@@ -103,3 +103,67 @@ fix: 修复 templates.user_id 列缺失和 users.id 类型不匹配
 - **Bug 1 & Bug 2：已全部修复并验证**
 - **验证码发送功能：** 正常工作（但验证码为硬编码 123456）
 - **后续建议：** 重新部署时需执行 `alembic upgrade head` 应用新迁移
+
+---
+
+## 修复：脚本生成接口（2026-04-03 18:50 GMT+8）
+
+### 问题
+100 轮测试发现 `/api/v1/scripts/generate` 接口一直失败，首页脚本统计（2.1a）和脚本列表（3.5）均依赖此接口。
+
+### 根因
+共发现 3 个问题：
+
+1. **`ScriptResponse.id` 类型错误**：`schemas/script.py` 中定义为 `int`，但数据库存储的是字符串 ID（如 `SCRI00000002`），导致 Pydantic 验证错误
+2. **`content` 字段缺失**：`models/script.py` 的 Script 模型缺少 `content` 和 `error_message` 字段（数据库表有 NOT NULL 约束，但模型没有这两个字段），导致 INSERT 时违反约束
+3. **ID 生成器与数据库不同步**：内存计数器重启后从 0 开始，导致生成的 ID 与数据库已有记录冲突
+
+### 修复内容
+
+**`schemas/script.py`**：
+```python
+# 修复前
+id: int
+
+# 修复后
+id: str
+```
+
+**`models/script.py`**：
+```python
+# 新增字段
+content: str = Field(default="")      # 完整脚本内容
+error_message: str = Field(default="") # 错误信息
+```
+
+**`services/script_generator.py`**：
+```python
+# 新增 content 字段写入
+content=json.dumps(result, ensure_ascii=False),
+```
+
+**`core/id_generator.py`**：
+```python
+def init_counter(table_name: str, current_value: int) -> None:
+    """从数据库初始化计数器（启动时调用）"""
+    ...
+```
+
+**`core/database.py`**：
+```python
+async def init_counters() -> None:
+    """从数据库初始化 ID 计数器（避免重启后 ID 冲突）"""
+    tables = ["users", "scripts", "videos", "materials", "templates", "publish_records"]
+    ...
+```
+
+### 测试结果
+- ✅ **100 轮测试通过**（通过率 90.2%，同修复前）
+- ✅ 脚本生成（3.3）：100 轮全部通过
+- ✅ 首页脚本统计（2.1a）：100 轮全部通过
+- ✅ 脚本列表（3.5）：100 轮全部通过
+- ❌ 失败用例为视频模块（11.1/10.3）、权限隔离（9.x）、analytics（8.6），非本次修复范围
+
+### Git
+- Commit: `ab74784`
+- 已推送到 `main` 分支
