@@ -7,14 +7,14 @@ import threading
 import uuid
 from typing import Callable
 
-# 表前缀映射（固定4位，不足用0补）
+# 表前缀映射（取表名前4位）
 PREFIX_MAP = {
-    "users": "USR0",
-    "scripts": "SCR0",
-    "videos": "VID0",
-    "materials": "MAT0",
-    "templates": "TPL0",
-    "publish_records": "PUB0",
+    "users": "USRS",
+    "scripts": "SCRI",
+    "videos": "VIDE",
+    "materials": "MATE",
+    "templates": "TEMP",
+    "publish_records": "PUBL",
 }
 
 # 每个表的顺序计数器（线程安全）
