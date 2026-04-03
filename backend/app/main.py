@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.core.database import init_db
-from app.api import scripts, videos, materials, templates, publishing
+from app.api import scripts, videos, materials, templates, publishing, analytics
 
 
 @asynccontextmanager
@@ -36,6 +36,7 @@ app.include_router(videos.router, prefix="/api/v1/videos", tags=["视频剪辑"]
 app.include_router(materials.router, prefix="/api/v1/materials", tags=["素材中心"])
 app.include_router(templates.router, prefix="/api/v1/templates", tags=["模板管理"])
 app.include_router(publishing.router, prefix="/api/v1/publishing", tags=["发布管理"])
+app.include_router(analytics.router, prefix="/api/v1/analytics", tags=["数据看板"])
 
 
 @app.get("/health")

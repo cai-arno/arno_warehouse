@@ -5,6 +5,7 @@ import { ScriptsPage } from "./pages/ScriptsPage"
 import { VideosPage } from "./pages/VideosPage"
 import { MaterialsPage } from "./pages/MaterialsPage"
 import { PublishingPage } from "./pages/PublishingPage"
+import { AnalyticsPage } from "./pages/AnalyticsPage"
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
         <Route path="videos" element={<VideosPage />} />
         <Route path="materials" element={<MaterialsPage />} />
         <Route path="publishing" element={<PublishingPage />} />
+        <Route path="analytics" element={<AnalyticsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

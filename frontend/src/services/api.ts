@@ -91,4 +91,15 @@ export const publishingApi = {
   get: (id: number) => api.get(`/publishing/${id}`),
 }
 
+// ============ Analytics ============
+export const analyticsApi = {
+  overview: () => api.get("/analytics/overview"),
+
+  trends: (days = 7) => api.get("/analytics/trends", { params: { days } }),
+
+  platforms: () => api.get("/analytics/platforms"),
+
+  topVideos: (limit = 10) => api.get("/analytics/top", { params: { limit } }),
+}
+
 export default api
