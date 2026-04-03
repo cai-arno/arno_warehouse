@@ -112,6 +112,7 @@ class ScriptGenerator:
             body=result.get("body", ""),
             cta=result.get("cta", ""),
             duration=result.get("duration", 0),
+            content=json.dumps(result, ensure_ascii=False),
             status=ScriptStatus.COMPLETED,
             user_id=user_id,
         )

@@ -33,6 +33,8 @@ class Script(SQLModel, table=True):
     body: str = Field(default="")                            # 正文内容
     cta: str = Field(default="")                             # 行动号召
     duration: int = Field(default=0)                        # 预估时长(秒)
+    content: str = Field(default="")                      # 完整脚本内容
+    error_message: str = Field(default="")                 # 错误信息
     status: ScriptStatus = Field(default=ScriptStatus.DRAFT)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)

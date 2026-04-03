@@ -36,8 +36,8 @@ services:
   # 后端 API
   backend:
     build:
-      context: ../../backend
-      dockerfile: ../docker/Dockerfile.backend
+      context: ../..
+      dockerfile: infrastructure/docker/Dockerfile.backend
     container_name: shortvideo-backend
     ports:
       - "8000:8000"
@@ -54,8 +54,8 @@ services:
   # 前端 (开发用热重载)
   frontend:
     build:
-      context: ../../frontend
-      dockerfile: ../docker/Dockerfile.frontend
+      context: ../..
+      dockerfile: infrastructure/docker/Dockerfile.frontend
     container_name: shortvideo-frontend
     ports:
       - "3000:3000"

@@ -16,7 +16,7 @@ class ScriptGenerateRequest(BaseModel):
 
 class ScriptResponse(BaseModel):
     """脚本响应"""
-    id: int
+    id: str
     title: str
     topic: str
     script_type: ScriptType

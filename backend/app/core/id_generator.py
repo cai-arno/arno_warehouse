@@ -22,6 +22,14 @@ _counters: dict[str, int] = {}
 _lock = threading.Lock()
 
 
+def init_counter(table_name: str, current_value: int) -> None:
+    """从数据库初始化计数器（启动时调用）"""
+    with _lock:
+        existing = _counters.get(table_name, 0)
+        if current_value > existing:
+            _counters[table_name] = current_value
+
+
 def get_next_id(table_name: str) -> str:
     """生成下一个 ID"""
     prefix = PREFIX_MAP.get(table_name)
