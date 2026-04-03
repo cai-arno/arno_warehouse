@@ -13,12 +13,11 @@ class ScriptStatus(str, Enum):
 
 
 class ScriptType(str, Enum):
-    """视频类型"""
-    PRODUCT_SHOWCASE = "product_showcase"      # 产品展示
-    TUTORIAL = "tutorial"                       # 教程讲解
-    STORY = "story"                              # 故事叙述
-    REVIEW = "review"                           # 测评种草
-    LIFESTYLE = "lifestyle"                     # 生活场景
+    PRODUCT_SHOWCASE = "product_showcase"  # 产品展示
+    TUTORIAL = "tutorial"                    # 教程讲解
+    STORY = "story"                          # 故事叙述
+    REVIEW = "review"                        # 测评种草
+    LIFESTYLE = "lifestyle"                  # 生活场景
 
 
 class Script(SQLModel, table=True):
@@ -26,15 +25,14 @@ class Script(SQLModel, table=True):
     __tablename__ = "scripts"
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    title: str = Field(max_length=200)
-    topic: str = Field(max_length=500)
+    user_id: int = Field(default=None, foreign_key="users.id", index=True)  # 归属用户
+    title: str = Field(max_length=200)                       # 标题
+    topic: str = Field(max_length=500)                       # 主题/选题
     script_type: ScriptType = Field(default=ScriptType.PRODUCT_SHOWCASE)
-    content: str = Field(default="")  # JSON string of script structure
-    hook: str = Field(default="", max_length=200)       # 黄金3秒开场
-    body: str = Field(default="")                        # 正文内容
-    cta: str = Field(default="", max_length=200)        # 行动号召
-    duration: int = Field(default=0)                     # 预估时长(秒)
+    hook: str = Field(default="")                            # 黄金3秒开场
+    body: str = Field(default="")                            # 正文内容
+    cta: str = Field(default="")                             # 行动号召
+    duration: int = Field(default=0)                        # 预估时长(秒)
     status: ScriptStatus = Field(default=ScriptStatus.DRAFT)
-    error_message: str = Field(default="")
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)

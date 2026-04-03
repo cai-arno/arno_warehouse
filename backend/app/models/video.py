@@ -17,6 +17,7 @@ class Video(SQLModel, table=True):
     __tablename__ = "videos"
 
     id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(default=None, foreign_key="users.id", index=True)  # 归属用户
     title: str = Field(max_length=200)
     script_id: Optional[int] = Field(default=None, foreign_key="scripts.id")
     template_id: Optional[int] = Field(default=None, foreign_key="templates.id")

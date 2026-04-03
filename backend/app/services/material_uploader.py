@@ -26,6 +26,7 @@ class MaterialUploader:
         name: str,
         category: str = "",
         tags: str = "[]",
+        user_id: int | None = None,
     ) -> Material:
         """上传素材文件"""
         # 生成唯一文件名
@@ -61,6 +62,7 @@ class MaterialUploader:
             height=height,
             tags=tags,
             category=category,
+            user_id=user_id or 0,
         )
         self.session.add(material)
         await self.session.commit()

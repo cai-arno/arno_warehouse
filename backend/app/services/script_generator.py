@@ -85,6 +85,7 @@ class ScriptGenerator:
         script_type: ScriptType = ScriptType.PRODUCT_SHOWCASE,
         quantity: int = 1,
         style: str | None = None,
+        user_id: int | None = None,
     ) -> Script:
         """生成脚本"""
         style_hint = f"\n风格要求：{style}" if style else ""
@@ -110,6 +111,7 @@ class ScriptGenerator:
             cta=result.get("cta", ""),
             duration=result.get("duration", 0),
             status=ScriptStatus.COMPLETED,
+            user_id=user_id or 0,
         )
         self.session.add(script)
         await self.session.commit()

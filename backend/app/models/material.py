@@ -18,6 +18,7 @@ class Material(SQLModel, table=True):
     __tablename__ = "materials"
 
     id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(default=None, foreign_key="users.id", index=True)  # 归属用户
     name: str = Field(max_length=200)
     material_type: MaterialType
     file_path: str = Field(default="")          # 存储路径

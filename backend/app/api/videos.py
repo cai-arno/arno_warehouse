@@ -15,6 +15,8 @@ from app.schemas.video import (
     VideoListResponse,
 )
 from app.services.video_renderer import render_video_task
+from app.api.dependencies import get_current_user
+from app.models.user import User
 
 router = APIRouter()
 
@@ -23,8 +25,15 @@ router = APIRouter()
 async def create_video(
     req: VideoCreateRequest,
     session: AsyncSession = Depends(get_session),
+    current_user: User = Depends(get_current_user),
 ):
     """创建视频剪辑任务"""
+    # 验证脚本归属
+    if req.script_id:
+        script = await session.get(Script, req.script_id)
+        if not script or script.user_id != current_user.id:
+            raise HTTPException(status_code=404, detail="Script not found")
+
     title = f"视频_{req.script_id}"
     script = await session.get(Script, req.script_id)
     if script:
@@ -32,6 +41,7 @@ async def create_video(
 
     video = Video(
         title=title,
+        user_id=current_user.id,
         script_id=req.script_id,
         template_id=req.template_id,
         status=VideoStatus.PENDING,
@@ -47,10 +57,11 @@ async def render_video(
     req: VideoRenderRequest,
     background_tasks: BackgroundTasks,
     session: AsyncSession = Depends(get_session),
+    current_user: User = Depends(get_current_user),
 ):
     """提交视频渲染"""
     video = await session.get(Video, req.video_id)
-    if not video:
+    if not video or video.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Video not found")
 
     video.status = VideoStatus.RENDERING
@@ -66,10 +77,11 @@ async def list_videos(
     page_size: int = Query(20, ge=1, le=100),
     status: Optional[VideoStatus] = None,
     session: AsyncSession = Depends(get_session),
+    current_user: User = Depends(get_current_user),
 ):
-    """获取视频列表"""
-    query = select(Video)
-    count_query = select(func.count(Video.id))
+    """获取当前用户的视频列表"""
+    query = select(Video).where(Video.user_id == current_user.id)
+    count_query = select(func.count(Video.id)).where(Video.user_id == current_user.id)
 
     if status:
         query = query.where(Video.status == status)
@@ -90,9 +102,13 @@ async def list_videos(
 
 
 @router.get("/{video_id}", response_model=VideoResponse)
-async def get_video(video_id: int, session: AsyncSession = Depends(get_session)):
-    """获取单个视频"""
+async def get_video(
+    video_id: int,
+    session: AsyncSession = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+):
+    """获取单个视频（仅属于当前用户）"""
     video = await session.get(Video, video_id)
-    if not video:
+    if not video or video.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Video not found")
     return video

@@ -14,6 +14,8 @@ from app.schemas.material import (
     MaterialListResponse,
 )
 from app.services.material_uploader import MaterialUploader
+from app.api.dependencies import get_current_user
+from app.models.user import User
 
 router = APIRouter()
 
@@ -26,6 +28,7 @@ async def upload_material(
     category: str = Query(""),
     tags: str = Query("[]"),
     session: AsyncSession = Depends(get_session),
+    current_user: User = Depends(get_current_user),
 ):
     """上传素材"""
     if file.size and file.size > settings.MAX_UPLOAD_SIZE:
@@ -39,6 +42,7 @@ async def upload_material(
             name=name or file.filename,
             category=category,
             tags=tags,
+            user_id=current_user.id,
         )
         return material
     except Exception as e:
@@ -53,10 +57,11 @@ async def list_materials(
     category: Optional[str] = None,
     keyword: Optional[str] = None,
     session: AsyncSession = Depends(get_session),
+    current_user: User = Depends(get_current_user),
 ):
-    """获取素材列表"""
-    query = select(Material)
-    count_query = select(func.count(Material.id))
+    """获取当前用户的素材列表"""
+    query = select(Material).where(Material.user_id == current_user.id)
+    count_query = select(func.count(Material.id)).where(Material.user_id == current_user.id)
 
     if material_type:
         query = query.where(Material.material_type == material_type)
@@ -83,19 +88,27 @@ async def list_materials(
 
 
 @router.get("/{material_id}", response_model=MaterialResponse)
-async def get_material(material_id: int, session: AsyncSession = Depends(get_session)):
-    """获取单个素材"""
+async def get_material(
+    material_id: int,
+    session: AsyncSession = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+):
+    """获取单个素材（仅属于当前用户）"""
     material = await session.get(Material, material_id)
-    if not material:
+    if not material or material.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Material not found")
     return material
 
 
 @router.delete("/{material_id}")
-async def delete_material(material_id: int, session: AsyncSession = Depends(get_session)):
-    """删除素材"""
+async def delete_material(
+    material_id: int,
+    session: AsyncSession = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+):
+    """删除素材（仅属于当前用户）"""
     material = await session.get(Material, material_id)
-    if not material:
+    if not material or material.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Material not found")
     await session.delete(material)
     await session.commit()

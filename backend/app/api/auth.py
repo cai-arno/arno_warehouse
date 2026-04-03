@@ -3,7 +3,9 @@ import re
 import random
 import time
 import httpx
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException
+from app.api.dependencies import get_current_user
+from app.models.user import User
 
 from app.core.database import async_session
 from app.core.config import settings
@@ -94,19 +96,11 @@ async def login(phone: str = Query(...), code: str = Query(...)):
 
 # ============ 获取当前用户信息 ============
 @router.get("/auth/me")
-async def get_current_user(user_id: int = Query(...)):
+async def get_me(current_user: User = Depends(get_current_user)):
     """获取当前登录用户信息"""
-    from sqlmodel import select
-    from app.models.user import User
-
-    async with async_session() as session:
-        user = await session.get(User, user_id)
-        if not user:
-            raise HTTPException(status_code=404, detail="用户不存在")
-
-        return {
-            "id": user.id,
-            "phone": user.phone,
-            "nickname": user.nickname,
-            "created_at": user.created_at.isoformat() if user.created_at else None,
-        }
+    return {
+        "id": current_user.id,
+        "phone": current_user.phone,
+        "nickname": current_user.nickname,
+        "created_at": current_user.created_at.isoformat() if current_user.created_at else None,
+    }
