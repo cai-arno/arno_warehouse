@@ -23,7 +23,7 @@ class VideosPage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.video_off, size: 64, color: Colors.grey),
+                  Icon(Icons.videocam_off, size: 64, color: Colors.grey),
                   SizedBox(height: 16),
                   Text('暂无视频', style: TextStyle(color: Colors.grey)),
                   Text('先生成脚本再创建视频', style: TextStyle(color: Colors.grey, fontSize: 12)),
