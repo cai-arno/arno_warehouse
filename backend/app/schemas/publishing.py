@@ -8,15 +8,15 @@ from app.models.publishing import Platform, PublishStatus
 
 class PublishRequest(BaseModel):
     """发布请求"""
-    video_id: int
+    video_id: str
     platform: Platform
     scheduled_at: Optional[datetime] = Field(default=None, description="定时发布时间")
 
 
 class PublishResponse(BaseModel):
     """发布响应"""
-    id: int
-    video_id: int
+    id: str
+    video_id: str
     platform: Platform
     status: PublishStatus
     platform_url: Optional[str] = None

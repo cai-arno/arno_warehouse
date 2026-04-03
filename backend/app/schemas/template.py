@@ -8,7 +8,7 @@ from app.models.template import TemplateType
 
 class TemplateResponse(BaseModel):
     """模板响应"""
-    id: int
+    id: str
     name: str
     template_type: TemplateType
     thumbnail_url: str

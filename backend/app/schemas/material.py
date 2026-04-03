@@ -8,7 +8,7 @@ from app.models.material import MaterialType
 
 class MaterialUploadResponse(BaseModel):
     """素材上传响应"""
-    id: int
+    id: str
     name: str
     material_type: MaterialType
     oss_url: str
@@ -21,7 +21,7 @@ class MaterialUploadResponse(BaseModel):
 
 class MaterialResponse(BaseModel):
     """素材响应"""
-    id: int
+    id: str
     name: str
     material_type: MaterialType
     oss_url: str

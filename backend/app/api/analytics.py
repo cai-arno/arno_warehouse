@@ -13,6 +13,12 @@ from app.models.publishing import PublishRecord, PublishStatus
 router = APIRouter()
 
 
+@router.get("")
+async def get_analytics_index():
+    """导航页 analytics 入口（返回空数据，仅表示页面可用）"""
+    return {"message": "analytics index"}
+
+
 @router.get("/overview")
 async def get_overview(session: AsyncSession = Depends(get_session)):
     """获取数据概览"""
