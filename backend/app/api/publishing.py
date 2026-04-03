@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import func, select
 
 from app.core.database import get_session
+from app.core.id_generator import generate_id
 from app.models.publishing import PublishRecord, Platform, PublishStatus
 from app.models.video import Video
 from app.schemas.publishing import (
@@ -33,6 +34,7 @@ async def create_publish(
         raise HTTPException(status_code=404, detail="Video not found")
 
     record = PublishRecord(
+        id=generate_id("publish_records"),
         video_id=req.video_id,
         platform=req.platform,
         status=PublishStatus.PENDING,
@@ -93,7 +95,7 @@ async def list_publish_records(
 
 @router.get("/{record_id}", response_model=PublishResponse)
 async def get_publish_record(
-    record_id: int,
+    record_id: str,
     session: AsyncSession = Depends(get_session),
     current_user: User = Depends(get_current_user),
 ):

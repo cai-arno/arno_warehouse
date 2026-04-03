@@ -89,7 +89,7 @@ async def list_materials(
 
 @router.get("/{material_id}", response_model=MaterialResponse)
 async def get_material(
-    material_id: int,
+    material_id: str,
     session: AsyncSession = Depends(get_session),
     current_user: User = Depends(get_current_user),
 ):
@@ -102,7 +102,7 @@ async def get_material(
 
 @router.delete("/{material_id}")
 async def delete_material(
-    material_id: int,
+    material_id: str,
     session: AsyncSession = Depends(get_session),
     current_user: User = Depends(get_current_user),
 ):

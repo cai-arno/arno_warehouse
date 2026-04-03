@@ -5,6 +5,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 
 from app.models.script import Script, ScriptStatus, ScriptType
 from app.core.config import settings
+from app.core.id_generator import generate_id
 
 
 class ScriptGenerator:
@@ -85,7 +86,7 @@ class ScriptGenerator:
         script_type: ScriptType = ScriptType.PRODUCT_SHOWCASE,
         quantity: int = 1,
         style: str | None = None,
-        user_id: int | None = None,
+        user_id: str | None = None,
     ) -> Script:
         """生成脚本"""
         style_hint = f"\n风格要求：{style}" if style else ""
@@ -103,6 +104,7 @@ class ScriptGenerator:
             result = self._generate_demo_script(topic)
 
         script = Script(
+            id=generate_id("scripts"),
             title=result.get("title", f"关于{topic}的脚本"),
             topic=topic,
             script_type=script_type,
@@ -111,7 +113,7 @@ class ScriptGenerator:
             cta=result.get("cta", ""),
             duration=result.get("duration", 0),
             status=ScriptStatus.COMPLETED,
-            user_id=user_id or 0,
+            user_id=user_id,
         )
         self.session.add(script)
         await self.session.commit()

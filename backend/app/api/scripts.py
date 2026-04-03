@@ -78,7 +78,7 @@ async def list_scripts(
 
 @router.get("/{script_id}", response_model=ScriptResponse)
 async def get_script(
-    script_id: int,
+    script_id: str,
     session: AsyncSession = Depends(get_session),
     current_user: User = Depends(get_current_user),
 ):
@@ -91,7 +91,7 @@ async def get_script(
 
 @router.delete("/{script_id}")
 async def delete_script(
-    script_id: int,
+    script_id: str,
     session: AsyncSession = Depends(get_session),
     current_user: User = Depends(get_current_user),
 ):

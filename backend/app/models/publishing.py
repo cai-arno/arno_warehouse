@@ -25,8 +25,8 @@ class PublishRecord(SQLModel, table=True):
     """发布记录表"""
     __tablename__ = "publish_records"
 
-    id: Optional[int] = Field(default=None, primary_key=True)
-    video_id: int = Field(foreign_key="videos.id")
+    id: str = Field(default=None, primary_key=True, max_length=12)  # 如 PUB_00000001
+    video_id: str = Field(foreign_key="videos.id")
     platform: Platform
     status: PublishStatus = Field(default=PublishStatus.DRAFT)
     platform_video_id: str = Field(default="")  # 平台返回的视频ID

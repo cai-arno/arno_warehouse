@@ -16,11 +16,11 @@ class Video(SQLModel, table=True):
     """视频表"""
     __tablename__ = "videos"
 
-    id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int = Field(default=None, foreign_key="users.id", index=True)  # 归属用户
+    id: str = Field(default=None, primary_key=True, max_length=12)  # 如 VID_00000001
+    user_id: str = Field(default=None, foreign_key="users.id", index=True)  # 归属用户
     title: str = Field(max_length=200)
-    script_id: Optional[int] = Field(default=None, foreign_key="scripts.id")
-    template_id: Optional[int] = Field(default=None, foreign_key="templates.id")
+    script_id: Optional[str] = Field(default=None, foreign_key="scripts.id")
+    template_id: Optional[str] = Field(default=None, foreign_key="templates.id")
     output_path: str = Field(default="")        # 渲染输出路径
     thumbnail_path: str = Field(default="")     # 封面图路径
     duration: int = Field(default=0)            # 视频时长(秒)

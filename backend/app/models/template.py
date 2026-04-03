@@ -16,7 +16,8 @@ class Template(SQLModel, table=True):
     """模板表"""
     __tablename__ = "templates"
 
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: str = Field(default=None, primary_key=True, max_length=12)  # 如 TPL_00000001
+    user_id: Optional[str] = Field(default=None, foreign_key="users.id", index=True)  # 归属用户（可为空表示公共模板）
     name: str = Field(max_length=200)
     template_type: TemplateType
     file_path: str = Field(default="")         # 模板文件路径

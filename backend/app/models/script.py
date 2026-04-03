@@ -24,8 +24,8 @@ class Script(SQLModel, table=True):
     """脚本表"""
     __tablename__ = "scripts"
 
-    id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int = Field(default=None, foreign_key="users.id", index=True)  # 归属用户
+    id: str = Field(default=None, primary_key=True, max_length=12)  # 如 SCR_00000001
+    user_id: str = Field(default=None, foreign_key="users.id", index=True)  # 归属用户
     title: str = Field(max_length=200)                       # 标题
     topic: str = Field(max_length=500)                       # 主题/选题
     script_type: ScriptType = Field(default=ScriptType.PRODUCT_SHOWCASE)

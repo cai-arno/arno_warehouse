@@ -6,6 +6,7 @@ from sqlalchemy import func
 from sqlmodel import select
 
 from app.core.database import get_session
+from app.core.id_generator import generate_id
 from app.models.video import Video, VideoStatus
 from app.models.script import Script
 from app.schemas.video import (
@@ -40,6 +41,7 @@ async def create_video(
         title = f"视频_{script.id}_{script.title[:20]}"
 
     video = Video(
+        id=generate_id("videos"),
         title=title,
         user_id=current_user.id,
         script_id=req.script_id,
@@ -103,7 +105,7 @@ async def list_videos(
 
 @router.get("/{video_id}", response_model=VideoResponse)
 async def get_video(
-    video_id: int,
+    video_id: str,
     session: AsyncSession = Depends(get_session),
     current_user: User = Depends(get_current_user),
 ):

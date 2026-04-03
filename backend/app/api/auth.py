@@ -1,14 +1,12 @@
 """认证 API"""
 import re
-import random
 import time
-import httpx
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query, Depends
 from app.api.dependencies import get_current_user
 from app.models.user import User
-
 from app.core.database import async_session
 from app.core.config import settings
+from app.core.id_generator import generate_id
 
 router = APIRouter()
 
@@ -68,14 +66,17 @@ async def login(phone: str = Query(...), code: str = Query(...)):
         del _sms_store[phone]
 
     from sqlmodel import select
-    from app.models.user import User
 
     async with async_session() as session:
         result = await session.execute(select(User).where(User.phone == phone))
         user = result.scalar_one_or_none()
 
         if not user:
-            user = User(phone=phone, nickname=f"用户{phone[-4:]}")
+            user = User(
+                id=generate_id("users"),
+                phone=phone,
+                nickname=f"用户{phone[-4:]}"
+            )
             session.add(user)
             await session.commit()
             await session.refresh(user)
