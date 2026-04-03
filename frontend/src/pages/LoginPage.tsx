@@ -1,16 +1,26 @@
-import { useState } from "react"
-import { Card, Input, Button, message } from "antd"
+import { useState, useEffect } from "react"
+import { Card, Input, Button, Checkbox, message } from "antd"
 import { useNavigate } from "react-router-dom"
+
+const STORAGE_KEY_PHONE = "remembered_phone"
 
 export function LoginPage() {
   const [phone, setPhone] = useState("")
   const [code, setCode] = useState("")
+  const [remember, setRemember] = useState(false)
   const [sending, setSending] = useState(false)
   const [loggingIn, setLoggingIn] = useState(false)
   const [countdown, setCountdown] = useState(0)
   const navigate = useNavigate()
 
-  const api = (import.meta as any).env?.VITE_API_URL || ""
+  // 加载记住的手机号
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY_PHONE)
+    if (saved) {
+      setPhone(saved)
+      setRemember(true)
+    }
+  }, [])
 
   const sendCode = async () => {
     if (!phone || !/^1[3-9]\d{9}$/.test(phone)) {
@@ -19,7 +29,7 @@ export function LoginPage() {
     }
     setSending(true)
     try {
-      const res = await fetch(`${api}/api/v1/auth/send-code?phone=${phone}`, { method: "POST" })
+      const res = await fetch(`/api/v1/auth/send-code?phone=${phone}`, { method: "POST" })
       const data = await res.json()
       if (data.success) {
         message.success("验证码已发送")
@@ -34,7 +44,7 @@ export function LoginPage() {
         message.error(data.detail || "发送失败")
       }
     } catch {
-      message.error("网络错误")
+      message.error("网络错误，请检查网络连接")
     } finally {
       setSending(false)
     }
@@ -47,9 +57,15 @@ export function LoginPage() {
     }
     setLoggingIn(true)
     try {
-      const res = await fetch(`${api}/api/v1/auth/login?phone=${phone}&code=${code}`, { method: "POST" })
+      const res = await fetch(`/api/v1/auth/login?phone=${phone}&code=${code}`, { method: "POST" })
       const data = await res.json()
       if (data.access_token) {
+        // 记住账号
+        if (remember) {
+          localStorage.setItem(STORAGE_KEY_PHONE, phone)
+        } else {
+          localStorage.removeItem(STORAGE_KEY_PHONE)
+        }
         localStorage.setItem("token", data.access_token)
         localStorage.setItem("user", JSON.stringify(data.user))
         message.success("登录成功")
@@ -58,7 +74,7 @@ export function LoginPage() {
         message.error(data.detail || "登录失败")
       }
     } catch {
-      message.error("网络错误")
+      message.error("网络错误，请检查网络连接")
     } finally {
       setLoggingIn(false)
     }
@@ -95,6 +111,7 @@ export function LoginPage() {
                 onChange={e => setCode(e.target.value)}
                 maxLength={6}
                 className="flex-1"
+                onPressEnter={login}
               />
               <Button
                 size="large"
@@ -106,6 +123,10 @@ export function LoginPage() {
               </Button>
             </div>
           </div>
+
+          <Checkbox checked={remember} onChange={e => setRemember(e.target.checked)}>
+            记住账号
+          </Checkbox>
 
           <Button
             size="large"
