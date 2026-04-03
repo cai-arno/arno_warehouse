@@ -1,11 +1,10 @@
-import { useState, useRef } from "react"
-import { Card, Upload, Select, Input, Grid, Image, message, Spin, Progress, Modal } from "antd"
+import { useState } from "react"
+import { Card, Upload, Select, Input, Image, message, Spin, Modal } from "antd"
 import { InboxOutlined, SearchOutlined, EyeOutlined, DeleteOutlined } from "@ant-design/icons"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { materialsApi } from "../services/api"
 
 const { Dragger } = Upload
-const { useBreakpoint } = Grid
 
 const typeOptions = [
   { value: "", label: "全部" },

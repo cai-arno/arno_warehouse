@@ -1,5 +1,5 @@
-import { Card, List, Tag, Button, Empty } from "antd"
-import { SendOutlined, CheckCircleOutlined, ClockCircleOutlined } from "@ant-design/icons"
+import { Card, List, Tag, Empty } from "antd"
+import { CheckCircleOutlined, ClockCircleOutlined } from "@ant-design/icons"
 import { useQuery } from "@tanstack/react-query"
 import { publishingApi } from "../services/api"
 

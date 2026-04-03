@@ -1,5 +1,5 @@
 import { Outlet, useNavigate, useLocation } from "react-router-dom"
-import { Layout as AntLayout, Menu, Button } from "antd"
+import { Layout as AntLayout, Button, Dropdown, Avatar } from "antd"
 import {
   HomeOutlined,
   FileTextOutlined,
@@ -7,6 +7,8 @@ import {
   AppstoreOutlined,
   SendOutlined,
   DashboardOutlined,
+  UserOutlined,
+  LogoutOutlined,
 } from "@ant-design/icons"
 import clsx from "clsx"
 
@@ -25,14 +27,36 @@ export function Layout() {
   const navigate = useNavigate()
   const location = useLocation()
 
+  const userStr = localStorage.getItem("user")
+  const user = userStr ? JSON.parse(userStr) : null
+
+  const logout = () => {
+    localStorage.removeItem("token")
+    localStorage.removeItem("user")
+    navigate("/login")
+  }
+
+  const userMenu = {
+    items: [
+      { key: "phone", label: user?.phone || "未登录", disabled: true },
+      { type: "divider" as const },
+      { key: "logout", label: "退出登录", icon: <LogoutOutlined />, onClick: logout },
+    ],
+  }
+
   return (
     <AntLayout className="min-h-screen bg-gray-50">
       {/* 顶部导航 */}
       <Header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 bg-white shadow-sm">
         <div className="text-lg font-bold text-purple-600">🎬 短视频工厂</div>
-        <Button type="primary" size="small" onClick={() => navigate("/scripts")}>
-          生成脚本
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button type="primary" size="small" onClick={() => navigate("/scripts")}>
+            生成脚本
+          </Button>
+          <Dropdown menu={userMenu} placement="bottomRight">
+            <Avatar size="small" icon={<UserOutlined />} className="cursor-pointer bg-purple-600" />
+          </Dropdown>
+        </div>
       </Header>
 
       {/* 底部导航（移动端） */}

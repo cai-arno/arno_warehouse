@@ -37,7 +37,6 @@ export function HomePage() {
 
   const scripts = scriptsData?.data?.items || []
   const videos = videosData?.data?.items || []
-  const publishes = publishData?.data?.items || []
 
   return (
     <div className="space-y-6">

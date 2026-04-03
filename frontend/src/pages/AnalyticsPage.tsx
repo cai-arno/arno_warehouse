@@ -1,4 +1,5 @@
-import { Card, Row, Col, Statistic, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "antd"
+import { Card, Row, Col, Statistic } from "antd"
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
 import { useQuery } from "@tanstack/react-query"
 import { analyticsApi } from "../services/api"
 

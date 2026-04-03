@@ -6,11 +6,28 @@ import { VideosPage } from "./pages/VideosPage"
 import { MaterialsPage } from "./pages/MaterialsPage"
 import { PublishingPage } from "./pages/PublishingPage"
 import { AnalyticsPage } from "./pages/AnalyticsPage"
+import { LoginPage } from "./pages/LoginPage"
+
+function RequireAuth({ children }: { children: React.ReactNode }) {
+  const token = localStorage.getItem("token")
+  if (!token) {
+    return <Navigate to="/login" replace />
+  }
+  return <>{children}</>
+}
 
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<Layout />}>
+      <Route path="/login" element={<LoginPage />} />
+      <Route
+        path="/"
+        element={
+          <RequireAuth>
+            <Layout />
+          </RequireAuth>
+        }
+      >
         <Route index element={<HomePage />} />
         <Route path="scripts" element={<ScriptsPage />} />
         <Route path="videos" element={<VideosPage />} />

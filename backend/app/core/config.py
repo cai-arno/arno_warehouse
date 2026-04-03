@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "短视频工厂 API"
     APP_VERSION: str = "0.1.0"
     DEBUG: bool = False
+    ENVIRONMENT: str = "development"
 
     # Server
     HOST: str = "0.0.0.0"
