@@ -2,6 +2,7 @@
 from datetime import datetime
 from enum import Enum
 from typing import Optional
+from sqlalchemy import Column, Enum as SAEnum
 from sqlmodel import SQLModel, Field
 
 
@@ -36,7 +37,12 @@ class Script(SQLModel, table=True):
     title: str = Field(max_length=200)                       # 标题
     topic: str = Field(max_length=500)                       # 主题/选题
     script_type: ScriptType = Field(default=ScriptType.PRODUCT_SHOWCASE)
-    platform: Platform = Field(default=Platform.DOUYIN)          # 目标平台
+    # 使用 values_callable 确保 SQLAlchemy 存储 enum value（'douyin'）而非 name（'DOUYIN'）
+    platform: Platform = Field(
+        default=Platform.DOUYIN,
+        sa_column=Column(SAEnum(Platform, name='platform', create_constraint=False, native_enum=False,
+                         values_callable=lambda x: [e.value for e in x]))
+    )
     hook: str = Field(default="")                            # 黄金3秒开场
     body: str = Field(default="")                            # 正文内容
     cta: str = Field(default="")                             # 行动号召
