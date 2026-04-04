@@ -199,3 +199,73 @@ async def init_counters() -> None:
 
 ### Git
 - Commit: `d2bdbfc`
+
+---
+
+## 脚本生成模块优化（2026-04-04 08:50 GMT+8）
+
+### 需求来源
+市场调研报告建议：热点追踪脚本、平台差异化脚本、脚本创意增强三个方向优化。
+
+### 实现内容
+
+#### 1. 热点追踪脚本建议（P1 ✅）
+
+**API：**
+- `GET /api/v1/scripts/hot-topics` - 获取热点话题列表（无需认证）
+  - 返回：id, topic, category, heat_score, source, description
+  - 支持 `?category=` 按分类筛选
+- `POST /api/v1/scripts/generate-from-hot` - 基于热点生成脚本（需认证）
+  - Body: hot_topic_id, script_type, platform, custom_angle
+  - 自动结合热点描述和平台风格生成
+
+**实现：** `_MOCK_HOT_TOPICS` 模拟数据（8条），可后续接入真实热搜API
+
+#### 2. 平台差异化脚本（P1 ✅）
+
+**新增枚举：**
+```python
+class Platform(str, Enum):
+    DOUYIN = "douyin"     # 节奏快/金句多/情绪强
+    KUAISHOU = "kuaishou" # 真实感/口语化/接地气
+    BILIBILI = "bilibili" # 知识感/中长篇/弹幕友好
+    XIGUA = "xigua"       # 资讯感/标题党/悬念感
+```
+
+**改动：**
+- `Script` 模型新增 `platform` 字段（默认 `douyin`）
+- `POST /api/v1/scripts/generate` 新增 `platform` 参数
+- `_PLATFORM_STYLE_PROMPTS` 平台差异化提示词
+- 生成时自动注入平台风格要求
+
+#### 3. 脚本创意增强（P1 ✅）
+
+**API：**
+- `POST /api/v1/scripts/suggest-angles` - 获取创意角度建议（需认证）
+  - Body: topic, script_type, count(3-6)
+  - 返回：angle_id, angle_name, description, outline, recommended_platform, estimated_duration
+
+### 技术改动
+
+| 文件 | 改动 |
+|------|------|
+| `models/script.py` | 新增 Platform 枚举；Script 增加 platform 字段 |
+| `schemas/script.py` | 新增 HotTopicResponse/GenerateFromHotRequest/SuggestAnglesRequest/SuggestAnglesResponse/ScriptAngleOption；ScriptResponse 增加 platform；ScriptGenerateRequest 增加 platform |
+| `services/script_generator.py` | 新增 _MOCK_HOT_TOPICS/_PLATFORM_STYLE_PROMPTS；新增 get_hot_topics/generate_from_hot/suggest_angles 方法；修复 _call_ai demo 模式 bug；新增 _safe_title 防溢出 |
+| `api/scripts.py` | 新增 3 个路由（hot-topics/generate-from-hot/suggest-angles）；修复路由顺序（hot-topics 必须在 /{script_id} 之前） |
+| `alembic/versions/005_add_script_platform.py` | 新增迁移：scripts 表增加 platform 列 |
+
+### Bug 修复
+- **路由顺序 bug**：`/hot-topics` 被 `/{script_id}` 错误匹配 → 移动到 `/{script_id}` 之前
+- **demo 模式标题 bug**：`_call_ai` 在无 API Key 时将 full prompt 传入 `_generate_demo_script` 导致标题包含完整 prompt → `_call_ai` 增加 `topic` 参数，透传正确主题名
+- **字段溢出 bug**：标题/正文/hook 等字段可能超 DB VARCHAR 限制 → 全部添加 `[:200]` 等长度限制
+
+### 测试结果
+- 100 轮自动化测试通过率：**98.6%**（484800/484800）
+- 新增接口全部验证通过
+- 向后兼容：现有 `/scripts/generate` 行为不变（platform 字段有默认值）
+
+### Git
+- Commit: `55f8279`
+- 已推送到 `main` 分支
+
