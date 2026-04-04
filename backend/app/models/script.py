@@ -12,6 +12,13 @@ class ScriptStatus(str, Enum):
     FAILED = "failed"
 
 
+class Platform(str, Enum):
+    DOUYIN = "douyin"     # 抖音
+    KUAISHOU = "kuaishou" # 快手
+    BILIBILI = "bilibili" # B站
+    XIGUA = "xigua"       # 西瓜
+
+
 class ScriptType(str, Enum):
     PRODUCT_SHOWCASE = "product_showcase"  # 产品展示
     TUTORIAL = "tutorial"                    # 教程讲解
@@ -29,6 +36,7 @@ class Script(SQLModel, table=True):
     title: str = Field(max_length=200)                       # 标题
     topic: str = Field(max_length=500)                       # 主题/选题
     script_type: ScriptType = Field(default=ScriptType.PRODUCT_SHOWCASE)
+    platform: Platform = Field(default=Platform.DOUYIN)          # 目标平台
     hook: str = Field(default="")                            # 黄金3秒开场
     body: str = Field(default="")                            # 正文内容
     cta: str = Field(default="")                             # 行动号召
