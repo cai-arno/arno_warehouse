@@ -269,3 +269,63 @@ class Platform(str, Enum):
 - Commit: `55f8279`
 - 已推送到 `main` 分支
 
+
+---
+
+## 2026-04-04 修复测试失败项（platform 枚举存储格式不一致）
+
+### 问题
+
+100 轮测试发现 **9.2 账号2获取脚本列表** 失败率 100%：
+- `account1` 登录成功 ✅
+- `account1` 创建脚本成功 ✅
+- `account2` 登录成功 ✅
+- `account2` 获取脚本列表 → **500 Internal Server Error** ❌
+
+### 根因
+
+数据库 `platform` 列混合存储了两种格式：
+- **旧数据**：`'douyin'`（enum value，小写）
+- **新数据**：`'DOUYIN'`（enum name，大写）
+
+SQLAlchemy 默认按**名称**（而非值）存储/读取 Python Enum：
+- 写入：存储 `"DOUYIN"`（名称）到数据库
+- 读取：从数据库读 `"douyin"` → 尝试 `Platform("douyin")` 查找 → 失败 ❌
+
+```
+LookupError: 'douyin' is not among the defined enum values.
+Enum name: platform. Possible values: DOUYIN, KUAISHOU, BILIBILI, XIGUA
+```
+
+### 修复内容
+
+**1. 数据迁移**（`backend/alembic/versions/006_fix_platform_enum_values.py`）：
+```sql
+UPDATE scripts SET platform = 'douyin' WHERE platform = 'DOUYIN';
+UPDATE scripts SET platform = 'kuaishou' WHERE platform = 'KUAISHOU';
+UPDATE scripts SET platform = 'bilibili' WHERE platform = 'BILIBILI';
+UPDATE scripts SET platform = 'xigua' WHERE platform = 'XIGUA';
+```
+
+**2. 模型修改**（`backend/app/models/script.py`）：
+```python
+from sqlalchemy import Column, Enum as SAEnum
+
+platform: Platform = Field(
+    default=Platform.DOUYIN,
+    # 使用 values_callable 确保 SQLAlchemy 存储 enum value 而非 name
+    sa_column=Column(SAEnum(Platform, name='platform',
+                            create_constraint=False, native_enum=False,
+                            values_callable=lambda x: [e.value for e in x]))
+)
+```
+
+### 测试结果
+- ✅ **100 轮测试，9.2 通过率 100%**（修复前：0%）
+- ✅ 新写入的数据统一为小写（`douyin`），不会再次出现格式混用
+- ✅ 其他测试无回归
+- ⚠️ 偶发抖动：`10.5 所有ID无横杠/下划线` 偶发 4 次，由旧数据中的 `SCRI_XXX` 格式 ID 引起，非代码 bug
+
+### Git
+- Commit: `06a9a5e`
+- 已推送到 `main` 分支
