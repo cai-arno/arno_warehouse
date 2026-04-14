@@ -38,6 +38,29 @@ export default function Profile() {
         </div>
       </div>
 
+      {/* 会员卡片 */}
+      <div
+        onClick={() => navigate('/membership')}
+        style={{
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          margin: '0 12px 12px', borderRadius: 12, padding: 16,
+          color: '#fff', cursor: 'pointer'
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 4 }}>开通会员</div>
+            <div style={{ fontSize: 12, opacity: 0.9 }}>解锁无限练习、学习报告等特权</div>
+          </div>
+          <div style={{
+            padding: '6px 14px', background: 'rgba(255,255,255,0.2)',
+            borderRadius: 20, fontSize: 13
+          }}>
+            立即开通 →
+          </div>
+        </div>
+      </div>
+
       {/* 学习数据 */}
       <div style={{ background: '#fff', margin: '0 12px 12px', borderRadius: 12, padding: 16 }}>
         <div style={{ fontWeight: 600, marginBottom: 16 }}>学习数据</div>
