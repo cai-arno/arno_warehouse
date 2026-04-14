@@ -48,9 +48,9 @@ export default function Home() {
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
           <span
-            onClick={() => navigate('/achievement')}
+            onClick={() => navigate('/membership')}
             style={{ fontSize: 20, cursor: 'pointer' }}
-          >🏆</span>
+          >👑</span>
           <span
             onClick={() => navigate('/profile')}
             style={{ fontSize: 20, cursor: 'pointer' }}
